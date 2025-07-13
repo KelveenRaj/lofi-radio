@@ -1,7 +1,6 @@
 import React, { useRef, useState } from "react";
 import {
   Box,
-  Button,
   VStack,
   IconButton,
   useColorMode,
@@ -10,11 +9,10 @@ import {
   Image,
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
-import { FaPlay, FaPause } from "react-icons/fa";
 
 const streamUrl = "https://ice3.somafm.com/groovesalad-128-mp3";
 const vinylUrl =
-  "https://images.pexels.com/photos/2746823/pexels-photo-2746823.jpeg?_gl=1*1snc891*_ga*ODM1NzMzMjY5LjE3NTE3NzU1NTY.*_ga_8JE65Q40S6*czE3NTE3NzU1NTYkbzEkZzEkdDE3NTE3NzU1NzAkajQ2JGwwJGgw";
+  "https://images.pexels.com/photos/2746823/pexels-photo-2746823.jpeg";
 
 const App = () => {
   const audioRef = useRef(null);
@@ -23,9 +21,10 @@ const App = () => {
 
   const handleToggle = () => {
     if (!audioRef.current) return;
-    isPlaying ? audioRef.current.pause() :  audioRef.current.play();
+    isPlaying ? audioRef.current.pause() : audioRef.current.play();
     setIsPlaying(!isPlaying);
   };
+
   return (
     <Box
       minH="100vh"
@@ -35,32 +34,49 @@ const App = () => {
       alignItems="center"
       justifyContent="center"
       px={4}
+      position="relative"
     >
-      <VStack spacing={6}>
-        <Box position="absolute" top={4} right={4}>
-          <IconButton
-            icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
-            onClick={toggleColorMode}
-          />
-        </Box>
+      {/* Theme toggle */}
+      <IconButton
+        icon={colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+        onClick={toggleColorMode}
+        position="absolute"
+        top={4}
+        left={4}
+        size="lg"
+        variant="ghost"
+        colorScheme="gray"
+        aria-label="Toggle Theme"
+      />
 
-        <Heading fontSize="3xl">Lo-Fi Vinyl Player</Heading>
+      <VStack spacing={8}>
+        <Heading fontSize="4xl" textAlign="center">
+          🎧 Lo‑Fi Vinyl Player
+        </Heading>
 
-        <Box // This is the vinyl container
-          w={250}
-          h={250}
+        {/* Vinyl Glow Container */}
+        <Box
+          onClick={handleToggle}
+          cursor="pointer"
+          position="relative"
+          w={280}
+          h={280}
           borderRadius="full"
-          overflow="hidden"
-          border="6px solid"
-          borderColor={useColorModeValue("gray.300", "gray.700")}
-          boxShadow="lg"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          className={isPlaying ? "glow-ring bounce" : ""}
+          transition="all 0.3s ease-in-out"
         >
+          {/* Vinyl Image */}
           <Image
             src={vinylUrl}
             alt="vinyl"
-            boxSize="100%"
+            boxSize="240px"
+            borderRadius="full"
             objectFit="cover"
             transformOrigin="center"
+            transition="transform 0.3s ease-in-out"
             sx={{
               animation: "spin 5s linear infinite",
               animationPlayState: isPlaying ? "running" : "paused",
@@ -72,17 +88,76 @@ const App = () => {
           />
         </Box>
 
-        <Button
-          leftIcon={isPlaying ? <FaPause /> : <FaPlay />}
-          colorScheme="teal"
-          size="lg"
-          onClick={handleToggle}
-        >
-          {isPlaying ? "Pause" : "Play"}
-        </Button>
+        {/* Now Playing Text */}
+        {isPlaying && (
+          <Heading
+            fontSize="lg"
+            color="teal.400"
+            mt={2}
+            transition="opacity 0.3s ease-in-out"
+          >
+            🎶 Now Playing GrooveSalad
+          </Heading>
+        )}
 
+        {/* Audio Element */}
         <audio ref={audioRef} src={streamUrl} />
       </VStack>
+
+      <style>
+        {`
+        .glow-ring::before {
+          content: "";
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          padding: 6px;
+          background: conic-gradient(
+            from 0deg,
+            #ff0080,
+            #ff8c00,
+            #40e0d0,
+            #8a2be2,
+            #ff0080
+          );
+          filter: blur(8px);
+          animation: rotate-glow 4s linear infinite;
+          z-index: -1;
+        }
+
+        @keyframes rotate-glow {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        .bounce {
+          animation: bouncePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes bouncePulse {
+          0% {
+            transform: scale(1) rotate(0deg);
+          }
+          20% {
+            transform: scale(1.03) rotate(0.5deg);
+          }
+          50% {
+            transform: scale(1.01) rotate(-0.4deg);
+          }
+          80% {
+            transform: scale(1.04) rotate(0.8deg);
+          }
+          100% {
+            transform: scale(1) rotate(0deg);
+          }
+        }
+        `}
+      </style>
     </Box>
   );
 };
